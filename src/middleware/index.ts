@@ -1,7 +1,7 @@
 import { defineMiddleware } from "astro:middleware"
 import { auth as betterAuth } from "@/auth/auth"
 
-export const auth = defineMiddleware(async (context, next) => {
+export const onRequest = defineMiddleware(async (context, next) => {
   let isAuthed = null
   try {
     isAuthed = await betterAuth.api.getSession({
