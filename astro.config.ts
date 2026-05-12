@@ -1,5 +1,8 @@
 import starlight from "@astrojs/starlight"
 import cloudflare from "@astrojs/cloudflare"
+
+import { ui } from "@rimelight/ui/integrations"
+import { sri } from "@rimelight/ui/integrations"
 import { defineConfig, memoryCache, svgoOptimizer } from "astro/config"
 
 export default defineConfig({
@@ -93,5 +96,8 @@ export default defineConfig({
         { label: "Hello", link: "/docs/hello/" },
       ],
     }),
+    ui(),
+
+    sri()
   ],
 })
