@@ -1,16 +1,16 @@
 import { defineMiddleware } from "astro:middleware"
 import { auth as betterAuth } from "@/auth/auth"
 
-const DOCS_PATTERN = /^\/[^/]+\/docs\//
-
-export const onRequest = defineMiddleware(async (context, next) => {
-  if (DOCS_PATTERN.test(context.url.pathname)) {
-    return next()
+export const auth = defineMiddleware(async (context, next) => {
+  let isAuthed = null
+  try {
+    isAuthed = await betterAuth.api.getSession({
+      headers: context.request.headers
+    })
+  } catch {
+    // getSession() may fail in certain runtime contexts (e.g. Starlight on Cloudflare Workers)
   }
 
-  const isAuthed = await betterAuth.api.getSession({
-    headers: context.request.headers,
-  })
   context.locals.user = isAuthed?.user ?? null
   context.locals.session = isAuthed?.session ?? null
   return next()
