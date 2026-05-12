@@ -1,9 +1,15 @@
 ---
-// Non-Starlight page — should work
 const title = "Home"
+const user = Astro.locals.user
+const session = Astro.locals.session
 ---
 
 <html lang="en">
   <head><title>{title}</title></head>
-  <body><h1>{title}</h1><p>This is a plain Astro page.</p></body>
+  <body>
+    <h1>{title}</h1>
+    <p>This is a plain Astro page.</p>
+    <p>User: {user ? "authenticated" : "none"}</p>
+    <p>Session: {session ? "active" : "none"}</p>
+  </body>
 </html>
