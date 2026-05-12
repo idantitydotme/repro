@@ -96,11 +96,7 @@ export default defineConfig({
       ],
     }),
 
-    ui({
-      logos: {
-        logomark: "/favicon.svg"
-      }
-    }),
+    ui(),
 
     sri()
   ],
