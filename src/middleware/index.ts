@@ -1,4 +1,5 @@
 import { auth as betterAuth } from "@/auth/auth"
+import { defineMiddleware } from "astro/middleware";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   let isAuthed = null
