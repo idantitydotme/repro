@@ -1,19 +1,39 @@
+import { defineMiddleware } from "astro:middleware"
 import { auth as betterAuth } from "@/auth/auth"
-import { defineMiddleware } from "astro/middleware";
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  if (context.url.pathname.includes("/docs/")) {
+    try {
+      await betterAuth.api.getSession({
+        headers: context.request.headers,
+      })
+      return new Response("OK - no error", { status: 200 })
+    } catch (e) {
+      return new Response(
+        JSON.stringify(
+          {
+            name: (e as Error).name,
+            message: (e as Error).message,
+            stack: (e as Error).stack,
+          },
+          null,
+          2,
+        ),
+        {
+          status: 500,
+          headers: { "content-type": "application/json" },
+        },
+      )
+    }
+  }
+
   let isAuthed = null
   try {
     isAuthed = await betterAuth.api.getSession({
       headers: context.request.headers,
     })
-  } catch (e) {
-    console.error("[auth middleware error]", {
-      message: (e as Error).message,
-      name: (e as Error).name,
-      stack: (e as Error).stack,
-      url: context.url.pathname,
-    })
+  } catch {
+    // getSession() may fail in certain runtime contexts (e.g. Starlight on Cloudflare Workers)
   }
 
   context.locals.user = isAuthed?.user ?? null
