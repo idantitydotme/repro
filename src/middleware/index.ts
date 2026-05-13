@@ -1,20 +1,22 @@
 import { defineMiddleware } from "astro:middleware"
 
+const IGNORED_ROUTES = ["/docs/"]
+const PROTECTED_ROUTES = ["/internal"]
+
 export const onRequest = defineMiddleware(async (context, next) => {
-  // Skip auth entirely for Starlight docs pages
-  if (context.url.pathname.includes("/docs/")) {
-    return next()
+  const isIgnored = IGNORED_ROUTES.some((path) => context.url.pathname.includes(path))
+  const isProtected = PROTECTED_ROUTES.some((path) => context.url.pathname.startsWith(path))
+
+  if (!isIgnored) {
+    const { auth } = await import("@/auth/auth")
+    const session = await auth.api.getSession({ headers: context.request.headers })
+    context.locals.user = session?.user ?? null
+    context.locals.session = session?.session ?? null
   }
 
-  let isAuthed = null
-  try {
-    const { auth } = await import("@/auth/auth")
-    isAuthed = await auth.api.getSession({
-      headers: context.request.headers,
-    })
-  } catch {}
+  if (isProtected && !context.locals.session) {
+    return context.redirect("/auth/sign-in")
+  }
 
-  context.locals.user = isAuthed?.user ?? null
-  context.locals.session = isAuthed?.session ?? null
   return next()
 })
